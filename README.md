@@ -1,216 +1,180 @@
-Imperium AI
-Multi-Agent Venture Capital Associate Powered by Band
-Overview
+# Imperium AI
 
-VentureMind AI is a multi-agent venture capital analyst that automates startup due diligence through coordinated AI agents.
+### Multi-Agent Venture Capital Associate Built with Band
 
-Instead of relying on a single LLM response, VentureMind simulates a real venture capital firm's investment process. Multiple specialized agents collaborate through Band to gather information, analyze business fundamentals, challenge assumptions, and ultimately generate an investment recommendation.
+## Overview
 
-The goal is to help investors, founders, accelerators, and students rapidly evaluate startups with structured and transparent reasoning.
+Imperium AI is an autonomous venture capital analyst that evaluates startups using a team of specialized AI agents.
 
-Problem
+Instead of generating a single AI response, Imperium AI simulates a real VC firm's due diligence process. Agents collaborate through Band to research companies, analyze markets, evaluate business models, challenge assumptions, and generate investment recommendations.
 
-Startup evaluation is time-consuming and fragmented.
+---
 
-Investors spend hours researching:
+## Problem
 
-Founding teams
-Market opportunities
-Competitors
-Business models
-Financial sustainability
-Investment risks
+Startup due diligence is time-consuming and fragmented.
 
-Most AI tools provide generic summaries without a rigorous review process.
+Investors must evaluate:
 
-VentureMind introduces a collaborative AI investment committee where specialized agents perform different roles and review each other's work before making a recommendation.
+* Founders
+* Market opportunities
+* Competitors
+* Business models
+* Financial viability
+* Investment risks
 
-How It Works
-User Input
+Most AI tools provide a single summary. Imperium AI provides a structured investment process.
 
-A user submits:
+---
 
-Startup name
-Website
-Pitch deck (optional)
-Additional context
+## Agent Workflow
 
-Example:
-
-Evaluate Aureum AI for investment.
-
-Agent Architecture
-1. Sourcing Agent
-
-Responsibilities
-
-Gather startup information
-Identify industry and category
-Find company website and public information
-Generate startup profile
-
-Output
-
-Company summary
-Industry classification
-Initial startup report
-2. Research Agent
-
-Responsibilities
-
-Analyze founders
-Evaluate market size
-Investigate competitors
-Identify industry trends
-
-Output
-
-Founder assessment
-Competitive landscape
-Market opportunity analysis
-3. Financial Agent
-
-Responsibilities
-
-Evaluate business model
-Assess revenue potential
-Analyze pricing strategy
-Estimate financial risks
-
-Output
-
-Revenue analysis
-Business model evaluation
-Financial risk report
-4. Partner Agent
-
-Responsibilities
-
-Critique findings from previous agents
-Challenge assumptions
-Identify weaknesses
-Highlight risks and missing information
-
-Output
-
-Counterarguments
-Risk assessment
-Areas requiring further diligence
-5. Investment Committee Agent
-
-Responsibilities
-
-Review all reports
-Aggregate findings
-Generate final recommendation
-
-Output
-
-Investment score
-Key strengths
-Key concerns
-Final recommendation
-
-Possible Outcomes
-
-Invest
-Investigate Further
-Pass
-Band Collaboration Flow
-User Request
-      │
-      ▼
+```text
+Startup Submission
+        │
+        ▼
 Sourcing Agent
-      │
-      ▼
+        │
+        ▼
 Research Agent
-      │
-      ▼
+        │
+        ▼
 Financial Agent
-      │
-      ▼
-Partner Agent
-      │
-      ▼
+        │
+        ▼
+Skeptic Agent
+        │
+        ▼
 Investment Committee Agent
-      │
-      ▼
+        │
+        ▼
 Investment Memo
+```
 
-Agents communicate through Band using structured messages and shared context.
+### Sourcing Agent
 
-Each agent receives outputs from previous agents and contributes specialized analysis before handing off the task.
+* Collect startup information
+* Build company profile
 
-Example Output
-Investment Recommendation
+### Research Agent
 
-Company: Aureum AI
+* Analyze founders
+* Evaluate market size
+* Research competitors
 
-Score: 8.2 / 10
+### Financial Agent
 
-Recommendation: Investigate Further
+* Evaluate business model
+* Assess revenue potential
+* Identify financial risks
 
-Strengths
-Clear industry focus
-Strong AI integration
-Large addressable market
-Concerns
-Customer acquisition costs
-Competitive CRM landscape
-Limited public traction data
-Suggested Next Step
+### Skeptic Agent
 
-Conduct customer validation interviews before making an investment decision.
+* Challenge assumptions
+* Identify weaknesses
+* Highlight risks
 
-Tech Stack
-Frontend
-Next.js
-React
-Tailwind CSS
-Backend
-Python
-FastAPI
-AI Layer
-OpenAI
-Band
-Data Sources
-Web Search APIs
-Startup Databases
-Public Company Information
-Future Enhancements
-Pitch deck analysis
-Automated TAM / SAM / SOM estimation
-Startup benchmarking
-Founder credibility scoring
-Multi-round investment debates
-Portfolio recommendation engine
-Real-time startup monitoring
-Success Criteria
-Demonstrates genuine multi-agent collaboration
-Structured agent-to-agent communication through Band
-Transparent reasoning process
-Actionable investment recommendations
-Complete investment memo generated from a single prompt
-Team Roadmap
-Phase 1
-Set up Band infrastructure
-Create agent definitions
-Build communication pipeline
-Phase 2
-Implement startup research workflow
-Create structured outputs
-Enable agent handoffs
-Phase 3
-Build investment committee logic
-Generate final investment memo
-Phase 4
-Frontend integration
-Demo preparation
-Testing and refinement
-Why VentureMind?
+### Investment Committee Agent
 
-Traditional AI startup analysis tools provide a single answer.
+* Review all findings
+* Generate final recommendation
 
-VentureMind simulates the workflow of a real venture capital firm by enabling multiple specialized AI agents to collaborate, critique one another, and reach a more informed investment decision.
+---
 
-By leveraging Band as the communication layer, VentureMind demonstrates how agent-to-agent collaboration can improve transparency, reasoning quality, and decision-making in financial due diligence.
+## How Band Is Used
+
+Band serves as the communication layer between agents.
+
+Each agent:
+
+* Receives context from previous agents
+* Produces structured outputs
+* Passes findings to downstream agents
+* Participates in the final investment decision
+
+This demonstrates genuine multi-agent collaboration rather than a simple LLM pipeline.
+
+---
+
+## Example Prompt
+
+```text
+Evaluate Aureum AI for investment.
+```
+
+### Example Output
+
+**Recommendation:** Investigate Further
+
+**Strengths**
+
+* Strong AI differentiation
+* Large market opportunity
+* Clear product focus
+
+**Risks**
+
+* Competitive CRM landscape
+* Customer acquisition costs
+* Limited public traction data
+
+---
+
+## Tech Stack
+
+### Frontend
+
+* Next.js
+* React
+* Tailwind CSS
+
+### Backend
+
+* Python
+* FastAPI
+
+### AI Layer
+
+* OpenAI
+* Band
+
+---
+
+## Hackathon Goals
+
+* Demonstrate real multi-agent collaboration
+* Showcase Band agent communication
+* Generate VC-style investment memos
+* Create transparent and explainable decisions
+
+---
+
+## Roadmap
+
+### Phase 1
+
+* Define agents
+* Configure Band communication
+
+### Phase 2
+
+* Implement startup research workflows
+* Enable agent handoffs
+
+### Phase 3
+
+* Generate investment memos
+* Build recommendation engine
+
+### Phase 4
+
+* Frontend integration
+* Demo preparation
+
+---
+
+## Why Imperium AI?
+
+Most AI tools provide answers.
+
+Imperium AI provides a decision-making process by simulating how a venture capital firm evaluates startups through collaboration, debate, and structured analysis.
