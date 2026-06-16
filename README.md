@@ -1,12 +1,12 @@
-# Imperium AI
+# Venture AI
 
 ### Multi-Agent Venture Capital Associate Built with Band
 
 ## Overview
 
-Imperium AI is an autonomous venture capital analyst that evaluates startups using a team of specialized AI agents.
+Venture AI is an autonomous venture capital analyst that evaluates startups using a team of specialized AI agents.
 
-Instead of generating a single AI response, Imperium AI simulates a real VC firm's due diligence process. Agents collaborate through Band to research companies, analyze markets, evaluate business models, challenge assumptions, and generate investment recommendations.
+Instead of generating a single AI response, Venture AI simulates a real VC firm's due diligence process. Agents collaborate through Band to research companies, analyze markets, evaluate business models, challenge assumptions, and generate investment recommendations.
 
 ---
 
@@ -23,7 +23,7 @@ Investors must evaluate:
 * Financial viability
 * Investment risks
 
-Most AI tools provide a single summary. Imperium AI provides a structured investment process.
+Most AI tools provide a single summary. Venture AI provides a structured investment process.
 
 ---
 
@@ -173,8 +173,8 @@ Evaluate Aureum AI for investment.
 
 ---
 
-## Why Imperium AI?
+## Why Venture AI?
 
 Most AI tools provide answers.
 
-Imperium AI provides a decision-making process by simulating how a venture capital firm evaluates startups through collaboration, debate, and structured analysis.
+Venture AI provides a decision-making process by simulating how a venture capital firm evaluates startups through collaboration, debate, and structured analysis.
