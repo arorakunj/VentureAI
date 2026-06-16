@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import os
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
@@ -50,14 +51,8 @@ class BaseAgent(ABC):
         if not self.band_client:
             logger.warning("No band client configured, skipping publish")
             return
-        payload = {
-            "agent": self.name,
-            "role": self.role,
-            "type": message_type,
-            "data": data,
-        }
         try:
-            await self.band_client.publish(self.name, message_type, payload)
+            await self.band_client.publish(self.name, message_type, data)
             logger.info(f"{self.name} published {message_type}")
         except Exception as e:
             logger.exception("Failed publishing to Band: %s", e)
@@ -70,16 +65,16 @@ class BaseAgent(ABC):
 
     async def call_llm(self, system_prompt: str, user_prompt: str, timeout: int = 30) -> Dict[str, Any]:
         """Call the AI/ML API and expect pure JSON in response body. Returns parsed JSON or raises."""
-        url = "https://api.aimlapi.com/v1/completions"
+        url = os.environ.get("AIML_API_URL", "https://api.aimlapi.com/v1/chat/completions")
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+        combined_prompt = f"{system_prompt}\n\n{user_prompt}"
         payload = {
-            "model": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            "model": os.environ.get("AIML_MODEL", "meta-llama/Meta-Llama-3.1-13B-Instruct"),
             "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
+                {"role": "user", "content": combined_prompt},
             ],
             "max_tokens": 1500,
             "temperature": 0.0,
