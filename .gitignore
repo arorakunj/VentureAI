@@ -1,0 +1,6 @@
+
+# Ignore Python and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
