@@ -528,6 +528,7 @@ function AgentOutput({
         events={outputs.feed_events ?? []}
         memo={outputs.investment_memo}
         runStatus={runStatus}
+        sourcingScore={outputs.startup_profile?.score}
       />
     );
   }
@@ -580,7 +581,7 @@ function AgentOutput({
     case "bear":
       return <BearCard bear={output as BearCase} />;
     case "memo":
-      return <MemoCard memo={output as InvestmentMemo} />;
+      return <MemoCard memo={output as InvestmentMemo} sourcingScore={outputs.startup_profile?.score} />;
     default:
       return null;
   }

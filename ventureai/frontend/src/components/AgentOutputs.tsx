@@ -191,7 +191,14 @@ export function BearCard({ bear }: { bear: BearCase }) {
 /* MemoCard                                                            */
 /* ------------------------------------------------------------------ */
 
-export function MemoCard({ memo }: { memo: InvestmentMemo }) {
+export function MemoCard({ memo, sourcingScore }: { memo: InvestmentMemo; sourcingScore?: number }) {
+  const scores = [
+    ...(sourcingScore !== undefined ? [{ label: "Sourcing", value: sourcingScore }] : []),
+    { label: "Market", value: memo.market_score },
+    { label: "Founder", value: memo.founder_score },
+    { label: "Financial", value: memo.financial_score },
+    { label: "Bear risk", value: memo.bear_case_score },
+  ];
   return (
     <motion.article {...CARD_ANIM} className="border border-ink/15">
       {/* Verdict */}
@@ -209,13 +216,8 @@ export function MemoCard({ memo }: { memo: InvestmentMemo }) {
       </div>
 
       {/* Sub-scores */}
-      <div className="grid grid-cols-4 border-b border-ink/15">
-        {[
-          { label: "Market", value: memo.market_score },
-          { label: "Founder", value: memo.founder_score },
-          { label: "Financial", value: memo.financial_score },
-          { label: "Bear risk", value: memo.bear_case_score },
-        ].map(({ label, value }) => (
+      <div className={`grid ${scores.length === 5 ? "grid-cols-5" : "grid-cols-4"} border-b border-ink/15`}>
+        {scores.map(({ label, value }) => (
           <div key={label} className="flex flex-col items-center border-r border-ink/15 py-4 last:border-r-0">
             <span className="font-display text-2xl font-bold">{value}</span>
             <span className="mt-1 font-mono text-[9px] uppercase tracking-ledger text-muted-foreground">{label}</span>
@@ -350,10 +352,12 @@ export function DebateRoom({
   events,
   memo,
   runStatus,
+  sourcingScore,
 }: {
   events: FeedEvent[];
   memo?: InvestmentMemo;
   runStatus?: "queued" | "running" | "done";
+  sourcingScore?: number;
 }) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -429,12 +433,19 @@ export function DebateRoom({
       </div>
 
       {/* Final scorecard — appears once committee memo is ready */}
-      {memo && <DebateScorecard memo={memo} />}
+      {memo && <DebateScorecard memo={memo} sourcingScore={sourcingScore} />}
     </div>
   );
 }
 
-function DebateScorecard({ memo }: { memo: InvestmentMemo }) {
+function DebateScorecard({ memo, sourcingScore }: { memo: InvestmentMemo; sourcingScore?: number }) {
+  const scores = [
+    ...(sourcingScore !== undefined ? [{ label: "Sourcing", value: sourcingScore }] : []),
+    { label: "Market", value: memo.market_score },
+    { label: "Founder", value: memo.founder_score },
+    { label: "Financial", value: memo.financial_score },
+    { label: "Bear Risk", value: memo.bear_case_score },
+  ];
   return (
     <motion.div
       initial={{ opacity: 1, y: 8 }}
@@ -458,13 +469,8 @@ function DebateScorecard({ memo }: { memo: InvestmentMemo }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 border-b border-ink/15">
-        {[
-          { label: "Market", value: memo.market_score },
-          { label: "Founder", value: memo.founder_score },
-          { label: "Financial", value: memo.financial_score },
-          { label: "Bear Risk", value: memo.bear_case_score },
-        ].map(({ label, value }) => (
+      <div className={`grid ${scores.length === 5 ? "grid-cols-5" : "grid-cols-4"} border-b border-ink/15`}>
+        {scores.map(({ label, value }) => (
           <div
             key={label}
             className="flex flex-col items-center border-r border-ink/15 py-3 last:border-r-0"

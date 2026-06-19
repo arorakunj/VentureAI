@@ -63,7 +63,7 @@ class BaseAgent(ABC):
             return
         await self.band_client.subscribe(message_types, callback)
 
-    async def call_llm_text(self, system_prompt: str, user_prompt: str, timeout: int = 30) -> str:
+    async def call_llm_text(self, system_prompt: str, user_prompt: str, timeout: int = 60) -> str:
         """Call the AI/ML API and return the raw text content string (no JSON parsing)."""
         url = os.environ.get("AIML_API_URL", "https://api.aimlapi.com/v1/chat/completions")
         headers = {
@@ -88,7 +88,7 @@ class BaseAgent(ABC):
             logger.exception("LLM call timed out")
             raise
 
-    async def call_llm(self, system_prompt: str, user_prompt: str, timeout: int = 30) -> Dict[str, Any]:
+    async def call_llm(self, system_prompt: str, user_prompt: str, timeout: int = 60) -> Dict[str, Any]:
         """Call the AI/ML API and expect pure JSON in response body. Returns parsed JSON or raises."""
         url = os.environ.get("AIML_API_URL", "https://api.aimlapi.com/v1/chat/completions")
         headers = {
