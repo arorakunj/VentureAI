@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd ventureai/frontend && npm install && npm run build",
+  "outputDirectory": "ventureai/frontend/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
