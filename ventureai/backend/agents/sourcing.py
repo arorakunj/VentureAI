@@ -20,7 +20,8 @@ class SourcingAgent(BaseAgent):
             "You are a startup analyst. Extract structured information about a startup from the provided input.\n\n"
             "CRITICAL RULE: If the input is NOT about a real startup, company, product, or business — "
             "for example if it is random characters, gibberish, a single meaningless word, a test string, "
-            "or completely off-topic — you MUST return ONLY this exact JSON and nothing else:\n"
+            "a personal greeting or introduction (e.g. 'hello', 'my name is...'), a question, "
+            "song lyrics, or anything completely off-topic — you MUST return ONLY this exact JSON and nothing else:\n"
             '{"company_name": "INVALID_INPUT", "founders": [], "funding_history": [], "score": 0, '
             '"summary": "Input does not describe a startup or company."}\n\n'
             "Only proceed with full extraction if the input clearly describes a real company or startup idea."

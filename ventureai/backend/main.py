@@ -112,6 +112,25 @@ async def _publish_debate_msg(session_id: str, speaker: str, content: str, round
 
 async def run_pipeline(raw_input: str, session_id: str):
     try:
+        await asyncio.wait_for(_run_pipeline(raw_input, session_id), timeout=180)
+    except asyncio.TimeoutError:
+        logger.error("Pipeline timed out for session %s", session_id)
+        rejection = InvestmentMemo(
+            verdict="PASS", confidence_score=0,
+            executive_summary="Pipeline timed out — the analysis took too long to complete.",
+            market_score=0, founder_score=0, financial_score=0, bear_case_score=0, overall_score=0,
+            recommendation="Try again with a clearer company description.",
+            due_diligence_questions=[], suggested_valuation_range="N/A", summary="Timed out.",
+        )
+        payload = rejection.dict()
+        payload["session_id"] = session_id
+        await band_client.publish("committee", "investment_memo", payload)
+    except Exception:
+        logger.exception("Pipeline failed for session %s", session_id)
+
+
+async def _run_pipeline(raw_input: str, session_id: str):
+    try:
         # Stage 1: extract startup profile
         profile = await sourcing_agent.process(raw_input, session_id=session_id)
 
