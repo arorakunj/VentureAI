@@ -115,6 +115,27 @@ class FinancialAgent(BaseAgent):
                 logger.exception("Failed to publish fallback financial_analysis")
             return fallback
 
+    async def rebut(self, challenge: str, analysis: FinancialAnalysis, session_id: Optional[str] = None) -> str:
+        system_prompt = (
+            "You are the financial analyst in a VC investment committee debate. "
+            "The Devil's Advocate has challenged your financial assessment. "
+            "Defend your position with specific numbers and financial reasoning. "
+            "Be precise and confident. Keep it to 2-3 sentences."
+        )
+        user_prompt = (
+            f"Your original financial analysis: {json.dumps(analysis.dict(), indent=2)}\n\n"
+            f"Devil's Advocate challenge: {challenge}\n\n"
+            "Defend your analysis directly."
+        )
+        try:
+            rebuttal = await self.call_llm_text(system_prompt, user_prompt)
+        except Exception:
+            logger.exception("FinancialAgent failed to generate rebuttal")
+            rebuttal = "The unit economics and revenue model are sound — our financial projections are conservative and well-justified."
+
+        await self.notify_band_platform(f"[Financial] Rebuttal: {rebuttal}")
+        return rebuttal
+
     async def close(self):
         if self._runtime_task:
             self._runtime_task.cancel()

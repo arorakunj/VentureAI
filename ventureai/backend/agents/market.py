@@ -114,6 +114,27 @@ class MarketResearchAgent(BaseAgent):
                 logger.exception("Failed to publish fallback market_analysis")
             return fallback
 
+    async def rebut(self, challenge: str, analysis: MarketAnalysis, session_id: Optional[str] = None) -> str:
+        system_prompt = (
+            "You are the senior market research analyst in a VC investment committee debate. "
+            "The Devil's Advocate has challenged your analysis. "
+            "Defend your position with specific data points and reasoning. "
+            "Be confident but acknowledge any valid concerns. Keep it to 2-3 sentences."
+        )
+        user_prompt = (
+            f"Your original market analysis: {json.dumps(analysis.dict(), indent=2)}\n\n"
+            f"Devil's Advocate challenge: {challenge}\n\n"
+            "Defend your analysis directly."
+        )
+        try:
+            rebuttal = await self.call_llm_text(system_prompt, user_prompt)
+        except Exception:
+            logger.exception("MarketResearchAgent failed to generate rebuttal")
+            rebuttal = f"Our market analysis stands — the TAM and growth trajectory are well-supported by industry data."
+
+        await self.notify_band_platform(f"[Market Research] Rebuttal: {rebuttal}")
+        return rebuttal
+
     async def close(self):
         if self._runtime_task:
             self._runtime_task.cancel()

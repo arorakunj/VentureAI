@@ -105,33 +105,37 @@ class CommitteeAgent(BaseAgent):
             logger.exception("CommitteeAgent: failed handling Band event")
 
     async def process(
-        self, 
+        self,
         startup: StartupProfile,
-        market: MarketAnalysis, 
-        founder: FounderAnalysis, 
-        financial: FinancialAnalysis, 
+        market: MarketAnalysis,
+        founder: FounderAnalysis,
+        financial: FinancialAnalysis,
         bear: BearCase,
-        session_id: Optional[str] = None
+        session_id: Optional[str] = None,
+        debate_summary: str = "",
     ) -> InvestmentMemo:
-        
+
         system_prompt = (
             "You are the Lead Partner of VentureAI Investment Committee. "
-            "Your job is to synthesize all diligence reports (startup profile, market, founder, financial, and bear case/risks) "
-            "and create a final Investment Memo. Weigh the upside against the risks highlighted by the Devil's Advocate. "
+            "Your job is to synthesize all diligence reports and the debate that followed between "
+            "the Devil's Advocate and the analysts. Weigh the upside against the risks. "
+            "Let the debate inform your confidence level and recommendation. "
             "Make a definitive investment decision. "
             "Return ONLY valid JSON. No markdown, no preamble, no explanation."
         )
-        
+
         inputs = {
             "startup_profile": startup.dict(),
             "market_analysis": market.dict(),
             "founder_analysis": founder.dict(),
             "financial_analysis": financial.dict(),
-            "bear_case": bear.dict()
+            "bear_case": bear.dict(),
         }
-        
+
+        debate_section = f"\n\nDEBATE TRANSCRIPT:\n{debate_summary}" if debate_summary else ""
+
         user_prompt = (
-            f"Diligence inputs:\n{json.dumps(inputs, indent=2)}\n\n"
+            f"Diligence inputs:\n{json.dumps(inputs, indent=2)}{debate_section}\n\n"
             "Return ONLY valid JSON with these exact fields: "
             "verdict (string: exactly 'INVEST', 'PASS', or 'WATCH'), "
             "confidence_score (integer 0-100), "

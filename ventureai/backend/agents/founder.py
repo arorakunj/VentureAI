@@ -114,6 +114,27 @@ class FounderResearchAgent(BaseAgent):
                 logger.exception("Failed to publish fallback founder_analysis")
             return fallback
 
+    async def rebut(self, challenge: str, analysis: FounderAnalysis, session_id: Optional[str] = None) -> str:
+        system_prompt = (
+            "You are the founder diligence analyst in a VC investment committee debate. "
+            "The Devil's Advocate has challenged your assessment of the founding team. "
+            "Defend your position with specific evidence from the founder backgrounds. "
+            "Be direct and confident. Keep it to 2-3 sentences."
+        )
+        user_prompt = (
+            f"Your original founder analysis: {json.dumps(analysis.dict(), indent=2)}\n\n"
+            f"Devil's Advocate challenge: {challenge}\n\n"
+            "Defend your assessment directly."
+        )
+        try:
+            rebuttal = await self.call_llm_text(system_prompt, user_prompt)
+        except Exception:
+            logger.exception("FounderResearchAgent failed to generate rebuttal")
+            rebuttal = "The founding team's track record and domain expertise speak for themselves — our assessment is well-grounded."
+
+        await self.notify_band_platform(f"[Founder Research] Rebuttal: {rebuttal}")
+        return rebuttal
+
     async def close(self):
         if self._runtime_task:
             self._runtime_task.cancel()

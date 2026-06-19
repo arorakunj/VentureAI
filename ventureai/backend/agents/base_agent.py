@@ -63,6 +63,31 @@ class BaseAgent(ABC):
             return
         await self.band_client.subscribe(message_types, callback)
 
+    async def call_llm_text(self, system_prompt: str, user_prompt: str, timeout: int = 30) -> str:
+        """Call the AI/ML API and return the raw text content string (no JSON parsing)."""
+        url = os.environ.get("AIML_API_URL", "https://api.aimlapi.com/v1/chat/completions")
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": os.environ.get("AIML_MODEL", "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"),
+            "messages": [{"role": "user", "content": f"{system_prompt}\n\n{user_prompt}"}],
+            "max_tokens": 400,
+            "temperature": 0.7,
+        }
+        try:
+            async with self._session.post(url, headers=headers, json=payload, timeout=timeout) as resp:
+                text = await resp.text()
+                if resp.status >= 400:
+                    logger.error("LLM API error %s: %s", resp.status, text)
+                    raise RuntimeError(f"LLM API error: {resp.status}")
+                envelope = json.loads(text)
+                return envelope["choices"][0]["message"]["content"].strip()
+        except asyncio.TimeoutError:
+            logger.exception("LLM call timed out")
+            raise
+
     async def call_llm(self, system_prompt: str, user_prompt: str, timeout: int = 30) -> Dict[str, Any]:
         """Call the AI/ML API and expect pure JSON in response body. Returns parsed JSON or raises."""
         url = os.environ.get("AIML_API_URL", "https://api.aimlapi.com/v1/chat/completions")

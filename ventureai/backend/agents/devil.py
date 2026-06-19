@@ -162,6 +162,107 @@ class DevilAgent(BaseAgent):
             )
             return fallback
 
+    async def generate_challenges(
+        self,
+        market: MarketAnalysis,
+        founder: FounderAnalysis,
+        financial: FinancialAnalysis,
+        bear: BearCase,
+        session_id: Optional[str] = None,
+    ) -> Dict[str, str]:
+        system_prompt = (
+            "You are the Devil's Advocate in a VC investment committee debate. "
+            "You have already written a bear case. Now generate sharp, specific one-paragraph challenges "
+            "aimed directly at each analyst to force them to defend their work. "
+            "Be pointed and skeptical — name specific numbers, assumptions, or claims to attack. "
+            "Return ONLY valid JSON. No markdown, no preamble."
+        )
+        user_prompt = (
+            f"Market analysis: {json.dumps(market.dict(), indent=2)}\n\n"
+            f"Founder analysis: {json.dumps(founder.dict(), indent=2)}\n\n"
+            f"Financial analysis: {json.dumps(financial.dict(), indent=2)}\n\n"
+            f"Your bear case: {json.dumps(bear.dict(), indent=2)}\n\n"
+            "Return ONLY valid JSON with exactly these three fields: "
+            "market_challenge (string), founder_challenge (string), financial_challenge (string)."
+        )
+        try:
+            resp = await self.call_llm(system_prompt, user_prompt)
+            challenges = {
+                "market_challenge": resp.get("market_challenge", ""),
+                "founder_challenge": resp.get("founder_challenge", ""),
+                "financial_challenge": resp.get("financial_challenge", ""),
+            }
+        except Exception:
+            logger.exception("DevilAgent failed to generate challenges, using bear case summary")
+            challenges = {
+                "market_challenge": bear.market_challenges[0] if bear.market_challenges else bear.summary,
+                "founder_challenge": bear.founder_challenges[0] if bear.founder_challenges else bear.summary,
+                "financial_challenge": bear.financial_challenges[0] if bear.financial_challenges else bear.summary,
+            }
+
+        await self.notify_band_platform(
+            f"[Devil's Advocate] Challenging the analysts:\n\n"
+            f"To Market: {challenges['market_challenge']}\n\n"
+            f"To Founder: {challenges['founder_challenge']}\n\n"
+            f"To Financial: {challenges['financial_challenge']}"
+        )
+        return challenges
+
+    async def evaluate_round(
+        self,
+        challenges: Dict[str, str],
+        market_rebuttal: str,
+        founder_rebuttal: str,
+        financial_rebuttal: str,
+        round_num: int,
+        session_id: Optional[str] = None,
+    ) -> Dict:
+        system_prompt = (
+            "You are the Devil's Advocate in a VC investment committee debate. "
+            "You challenged the analysts and they have responded. Evaluate their rebuttals critically.\n"
+            "Decide whether to keep pressing or close the debate:\n"
+            "- If the analysts have NOT adequately addressed your concerns, continue with sharper, more specific challenges.\n"
+            "- If they have made genuinely compelling points that change your view, concede gracefully but note remaining concerns.\n"
+            "- Be strategic — don't repeat yourself. Escalate or concede based on what was actually said.\n"
+            "Return ONLY valid JSON. No markdown, no preamble."
+        )
+        user_prompt = (
+            f"Round {round_num} — Your challenges:\n"
+            f"  To Market: {challenges['market_challenge']}\n"
+            f"  To Founder: {challenges['founder_challenge']}\n"
+            f"  To Financial: {challenges['financial_challenge']}\n\n"
+            f"Their rebuttals:\n"
+            f"  Market: {market_rebuttal}\n"
+            f"  Founder: {founder_rebuttal}\n"
+            f"  Financial: {financial_rebuttal}\n\n"
+            "Return ONLY valid JSON. If continuing, use this shape:\n"
+            '{"continue": true, "response": "your 2-3 sentence reaction", '
+            '"market_challenge": "new challenge", "founder_challenge": "new challenge", "financial_challenge": "new challenge"}\n'
+            "If closing the debate, use this shape:\n"
+            '{"continue": false, "response": "your closing statement — concede what was earned, hold what wasn\'t"}'
+        )
+        try:
+            resp = await self.call_llm(system_prompt, user_prompt)
+            should_continue = bool(resp.get("continue", False))
+            result = {
+                "continue": should_continue,
+                "response": resp.get("response", ""),
+            }
+            if should_continue:
+                result["market_challenge"] = resp.get("market_challenge", challenges["market_challenge"])
+                result["founder_challenge"] = resp.get("founder_challenge", challenges["founder_challenge"])
+                result["financial_challenge"] = resp.get("financial_challenge", challenges["financial_challenge"])
+        except Exception:
+            logger.exception("DevilAgent failed to evaluate round")
+            result = {
+                "continue": False,
+                "response": "The analysts have made their case. I maintain my core concerns but acknowledge their points.",
+            }
+
+        label = "Pressing further" if result["continue"] else "Closing the debate"
+        await self.notify_band_platform(f"[Devil's Advocate] {label}: {result['response']}")
+        return result
+
     async def close(self):
         if self._runtime_task:
             self._runtime_task.cancel()

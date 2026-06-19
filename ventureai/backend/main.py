@@ -91,17 +91,63 @@ app = FastAPI(lifespan=lifespan)
 
 async def run_pipeline(raw_input: str, session_id: str):
     try:
+        # Stage 1: extract startup profile
         profile = await sourcing_agent.process(raw_input, session_id=session_id)
 
+        # Stage 2: parallel analysis
         market, founder, financial = await asyncio.gather(
             market_agent.process(profile, session_id=session_id),
             founder_agent.process(profile, session_id=session_id),
             financial_agent.process(profile, session_id=session_id),
         )
 
+        # Stage 3: devil's advocate bear case
         bear = await devil_agent.process(market, founder, financial, session_id=session_id)
 
-        await committee_agent.process(profile, market, founder, financial, bear, session_id=session_id)
+        # Stage 4: dynamic debate — devil challenges until analysts satisfy the concerns or max rounds hit
+        MAX_ROUNDS = 3
+        challenges = await devil_agent.generate_challenges(market, founder, financial, bear, session_id=session_id)
+        debate_log: List[str] = []
+
+        for round_num in range(1, MAX_ROUNDS + 1):
+            market_rb, founder_rb, financial_rb = await asyncio.gather(
+                market_agent.rebut(challenges["market_challenge"], market, session_id=session_id),
+                founder_agent.rebut(challenges["founder_challenge"], founder, session_id=session_id),
+                financial_agent.rebut(challenges["financial_challenge"], financial, session_id=session_id),
+            )
+
+            debate_log.append(
+                f"--- Round {round_num} ---\n"
+                f"Devil → Market: {challenges['market_challenge']}\n"
+                f"Market: {market_rb}\n\n"
+                f"Devil → Founder: {challenges['founder_challenge']}\n"
+                f"Founder: {founder_rb}\n\n"
+                f"Devil → Financial: {challenges['financial_challenge']}\n"
+                f"Financial: {financial_rb}"
+            )
+
+            decision = await devil_agent.evaluate_round(
+                challenges, market_rb, founder_rb, financial_rb, round_num, session_id=session_id
+            )
+            debate_log.append(f"Devil's verdict on round {round_num}: {decision['response']}")
+
+            if not decision["continue"] or round_num == MAX_ROUNDS:
+                break
+
+            challenges = {
+                "market_challenge": decision["market_challenge"],
+                "founder_challenge": decision["founder_challenge"],
+                "financial_challenge": decision["financial_challenge"],
+            }
+
+        debate_summary = "\n\n".join(debate_log)
+
+        # Stage 5: committee synthesizes everything including the debate
+        await committee_agent.process(
+            profile, market, founder, financial, bear,
+            session_id=session_id,
+            debate_summary=debate_summary,
+        )
 
     except Exception:
         logger.exception("Pipeline failed for session %s", session_id)
