@@ -16,7 +16,7 @@ class StartupProfile(BaseModel):
     summary: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class MarketAnalysis(BaseModel):
@@ -30,7 +30,7 @@ class MarketAnalysis(BaseModel):
     summary: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class FounderAnalysis(BaseModel):
@@ -41,7 +41,7 @@ class FounderAnalysis(BaseModel):
     summary: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class FinancialAnalysis(BaseModel):
@@ -55,7 +55,7 @@ class FinancialAnalysis(BaseModel):
     summary: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BearCase(BaseModel):
@@ -67,7 +67,7 @@ class BearCase(BaseModel):
     summary: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class InvestmentMemo(BaseModel):
@@ -91,4 +91,4 @@ class InvestmentMemo(BaseModel):
         return max(0, min(100, v))
 
     class Config:
-        orm_mode = True
+        from_attributes = True

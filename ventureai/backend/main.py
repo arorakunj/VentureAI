@@ -7,10 +7,11 @@ from contextlib import asynccontextmanager
 from typing import Any, Dict, List
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(".env.local")
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from .band_client import InMemoryBandClient
 from .agents.sourcing import SourcingAgent
@@ -78,6 +79,7 @@ async def lifespan(_: FastAPI):
         await agent.connect_to_band(band_client)
 
     logger.info("All 6 agents connected to band")
+    logger.info("Using LLM model: %s", os.environ.get("AIML_MODEL", "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"))
 
     yield
 
@@ -87,6 +89,14 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+# Enable CORS for dev/local access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 async def run_pipeline(raw_input: str, session_id: str):
@@ -146,6 +156,12 @@ async def memo(session_id: str):
 async def websocket_endpoint(websocket: WebSocket, session_id: str):
     await websocket.accept()
     WS_CONNECTIONS.setdefault(session_id, []).append(websocket)
+    # Replay messages that arrived before the WebSocket connected
+    for entry in list(SESSIONS.get(session_id, [])):
+        try:
+            await websocket.send_text(json.dumps(entry))
+        except Exception:
+            break
     try:
         while True:
             await websocket.receive_text()
