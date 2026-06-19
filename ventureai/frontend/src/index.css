@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 66%;
+    --border: 0 0% 24%;
+    --input: 0 0% 24%;
+    --ring: 0 0% 100%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans;
+    font-feature-settings: "ss01", "cv01", "cv11";
+  }
+
+  /* Selection inherits the monochrome system — inverted, never tinted. */
+  ::selection {
+    @apply bg-ink text-paper;
+  }
+
+  /* Visible keyboard focus for the whole app. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ink ring-offset-2 ring-offset-paper;
+  }
+}
+
+@layer components {
+  /* A true 1px hairline rule — the structural backbone of the ledger. */
+  .hairline {
+    @apply border-t border-ink/15;
+  }
+
+  /* Monospace eyebrow / data label used across the ledger index. */
+  .label-mono {
+    @apply font-mono text-[10px] uppercase tracking-ledger text-muted-foreground;
+  }
+}
+
+/* Respect reduced-motion: kill all transforms/animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
