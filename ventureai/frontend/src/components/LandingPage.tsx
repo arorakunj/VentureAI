@@ -188,8 +188,8 @@ function IndexGrid() {
           className="mb-16 flex flex-col items-center gap-5 text-center"
         >
           <span className="label-mono">The committee</span>
-          <h2 className="font-display text-4xl font-bold leading-tight tracking-tightest sm:text-5xl whitespace-nowrap">
-            Six specialists, one pipeline
+          <h2 className="font-display text-4xl font-bold leading-tight tracking-tightest sm:text-5xl">
+            Six specialists,<br />one pipeline
           </h2>
           <p className="max-w-[520px] font-sans text-base leading-relaxed text-muted-foreground">
             Each agent is a numbered entry in the deal ledger. The order is the
