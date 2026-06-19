@@ -63,17 +63,12 @@ class SourcingAgent(BaseAgent):
 
         except Exception as e:
             logger.exception("SourcingAgent failed to produce structured profile: %s", e)
-            # Fallback: produce a minimal StartupProfile using the raw input
-            try:
-                company_name = (raw_input.strip().splitlines()[0]) if raw_input else "unknown"
-            except Exception:
-                company_name = "unknown"
-
+            # Fallback: mark as INVALID_INPUT so the pipeline short-circuits cleanly
             fallback = StartupProfile(
-                company_name=company_name[:200],
+                company_name="INVALID_INPUT",
                 raw_description=raw_input,
                 score=0,
-                summary=f"Fallback profile generated after LLM/parse error: {str(e)}",
+                summary="Sourcing agent failed to process input.",
             )
 
             payload = fallback.dict()
