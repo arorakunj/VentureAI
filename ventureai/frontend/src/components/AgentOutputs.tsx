@@ -14,6 +14,16 @@ import type {
 
 const CARD_ANIM = { initial: { opacity: 1, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const } };
 
+function formatMoney(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  const num = Number(String(value).replace(/[$,\s]/g, ""));
+  if (isNaN(num)) return value;
+  if (num >= 1_000_000_000) return `$${(num / 1_000_000_000).toFixed(1).replace(/\.0$/, "")}B`;
+  if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (num >= 1_000) return `$${(num / 1_000).toFixed(0)}K`;
+  return `$${num}`;
+}
+
 /* ------------------------------------------------------------------ */
 /* ProfileCard                                                         */
 /* ------------------------------------------------------------------ */
@@ -135,7 +145,7 @@ export function FounderCard({ analysis }: { analysis: FounderAnalysis }) {
 
 export function FinancialCard({ analysis }: { analysis: FinancialAnalysis }) {
   const meta = [
-    { icon: DollarSign, label: "Raise", value: analysis.raise_amount },
+    { icon: DollarSign, label: "Raise", value: formatMoney(analysis.raise_amount) ?? analysis.raise_amount },
     { icon: TrendingUp, label: "Burn", value: analysis.burn_assessment },
     { icon: Target, label: "Path", value: analysis.path_to_profitability },
   ];
