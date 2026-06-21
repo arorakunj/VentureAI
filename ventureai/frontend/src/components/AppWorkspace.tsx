@@ -158,6 +158,7 @@ export function AppWorkspace() {
   const [input, setInput] = useState("");
   const [pipeline, setPipeline] = useState<PipelineState>({ phase: "idle" });
   const wsRef = useRef<{ close(): void } | null>(null);
+  const runIdRef = useRef(0);
 
   useEffect(() => () => { wsRef.current?.close(); }, []);
 
@@ -169,23 +170,28 @@ export function AppWorkspace() {
 
   const submit = async () => {
     if (!input.trim() || isRunning) return;
+
+    const runId = ++runIdRef.current;
+    wsRef.current?.close();
+    wsRef.current = null;
+
     setPipeline({ phase: "running", sessionId: "", outputs: {} });
     setActiveId("sourcing");
 
     try {
       const { session_id } = await startEvaluation(input.trim());
+      if (runIdRef.current !== runId) return;
+
       setPipeline({ phase: "running", sessionId: session_id, outputs: {} });
 
-      wsRef.current?.close();
       wsRef.current = openPipeline(session_id, {
         onMessage: (msg) => {
+          if (runIdRef.current !== runId) return;
           setPipeline((prev) => {
             if (prev.phase !== "running") return prev;
-            // Update structured outputs (debate_message only goes to feed)
             const structured: PipelineOutputs = msg.type !== "debate_message"
               ? { ...prev.outputs, [msg.type]: msg.data } as PipelineOutputs
               : prev.outputs;
-            // Append to unified live feed
             const feedEvent = toFeedEvent(msg);
             const newOutputs: PipelineOutputs = feedEvent
               ? { ...structured, feed_events: [...(structured.feed_events ?? []), feedEvent] }
@@ -197,6 +203,7 @@ export function AppWorkspace() {
           });
         },
         onError: () => {
+          if (runIdRef.current !== runId) return;
           setPipeline((prev) =>
             prev.phase === "running"
               ? {
@@ -208,6 +215,7 @@ export function AppWorkspace() {
           );
         },
         onClose: () => {
+          if (runIdRef.current !== runId) return;
           setPipeline((prev) =>
             prev.phase === "running"
               ? { phase: "done", sessionId: prev.sessionId, outputs: prev.outputs }
@@ -216,6 +224,7 @@ export function AppWorkspace() {
         },
       });
     } catch (err) {
+      if (runIdRef.current !== runId) return;
       const message =
         err instanceof ApiError && (err.status === 0 || (err.status ?? 0) >= 500)
           ? "The backend isn't responding. Start the FastAPI server on :8000 and try again."
