@@ -82,7 +82,7 @@ function Hero() {
           className="mt-9 max-w-[760px] font-display text-xl leading-snug tracking-tight sm:text-2xl lg:text-3xl"
         >
           The copilot for high-conviction venture capital — a committee of
-          specialist agents that source, diligence, and stress-test a deal
+          specialist agents that source, vet, and stress-test a deal
           before you ever take the meeting.
         </motion.p>
 
